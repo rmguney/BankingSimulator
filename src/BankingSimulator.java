@@ -1,4 +1,3 @@
-import java.util.LinkedList;
 import java.util.Random;
 
 enum Priority {
@@ -26,7 +25,7 @@ class Customer {
 
 public class BankingSimulator {
     public static void main(String[] args) {
-        LinkedList<Customer> queue = new LinkedList<>();
+        Customer[] queue = new Customer[10];
         Random random = new Random();
 
         for (int i = 0; i < 10; i++) {
@@ -35,27 +34,40 @@ public class BankingSimulator {
 
             Customer customer = new Customer(customerId, priority);
 
-            int insertIndex = 0;
-            while (insertIndex < queue.size() && queue.get(insertIndex).priority.ordinal() <= customer.priority.ordinal()) {
-                insertIndex++;
+            int insertIndex;
+            for (insertIndex = 0; insertIndex < i; insertIndex++) {
+                if (queue[insertIndex].priority.ordinal() > customer.priority.ordinal()) {
+                    break;
+                }
             }
 
-            queue.add(insertIndex, customer);
+
+            for (int j = i; j > insertIndex; j--) {
+                queue[j] = queue[j - 1];
+            }
+
+            queue[insertIndex] = customer;
 
             System.out.println("Customer added. " + customer);
-            printWaitingCustomers(queue);
+            printWaitingCustomers(queue, i + 1);
 
-            if (random.nextBoolean() && !queue.isEmpty()) {
-                Customer removedCustomer = queue.removeFirst();
+            if (random.nextBoolean() && i >= 0) {
+                Customer removedCustomer = queue[0];
+                for (int j = 1; j <= i; j++) {
+                    queue[j - 1] = queue[j];
+                }
+                queue[i] = null;
+                i--;
+
                 System.out.println("Customer removed. " + removedCustomer);
-                printWaitingCustomers(queue);
+                printWaitingCustomers(queue, i + 1);
             }
         }
     }
 
-    private static void printWaitingCustomers(LinkedList<Customer> queue) {
-        for (Customer customer : queue) {
-            System.out.println(customer);
+    private static void printWaitingCustomers(Customer[] queue, int size) {
+        for (int i = 0; i < size; i++) {
+            System.out.println(queue[i]);
         }
         System.out.println("———————————————————————————————————");
     }
